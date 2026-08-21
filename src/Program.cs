@@ -40,6 +40,30 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 var app = builder.Build();
 
+
+// --- Programmatic Migration Logic Starts Here ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        // Applies any pending migrations and creates the database if it doesn't exist
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+
+        // Optional: Re-throw if you want the application to crash on a failed migration
+        throw;
+    }
+}
+// --- Programmatic Migration Logic Ends Here ---
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
