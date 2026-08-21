@@ -1,0 +1,6 @@
+services:
+  worksite:
+    image: ${DOCKER_REGISTRY-}worksite
+    build:
+      context: .
+      dockerfile: src/Dockerfile
